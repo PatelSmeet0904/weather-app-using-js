@@ -39,22 +39,24 @@ const months = [
 const API_KEY = "aaa74cb61c515b9509baf2c7bef24143";
 
 // Button to show form
-const bbtnn2 = document.getElementById('bbtnn2');
+const bbtnn2 = document.getElementById("bbtnn2");
 weatherForm.style.display = "none";
 
-bbtnn2.addEventListener('click', () => {
+bbtnn2.addEventListener("click", () => {
   weatherForm.style.display = "block";
   timezone.style.display = "none";
   countryEl.style.display = "none";
-  currentWeatherItemsEl.style.display = 'none';
+  currentWeatherItemsEl.style.display = "none";
   currentTempEl.style.display = "none";
   weatherForecastEl.style.display = "none";
+  search.value = ''
 });
 
 // Button for current location
-const bbtnn1 = document.getElementById('bbtnn1');
-bbtnn1.addEventListener('click', () => {
-  form.style.display = 'none';
+const bbtnn1 = document.getElementById("bbtnn1");
+bbtnn1.addEventListener("click", () => {
+  weatherForm.style.display = "none";
+  setDisplayStyle()
   getWeatherData1();
 });
 
@@ -95,11 +97,7 @@ function getWeatherData1() {
 weatherForm.addEventListener("submit", (event) => {
   event.preventDefault();
 
-  currentWeatherItemsEl.style.display = "block";
-  timezone.style.display = "block";
-  countryEl.style.display = "block";
-  currentTempEl.style.display = "flex";
-  weatherForecastEl.style.display = "flex";
+  setDisplayStyle()
 
   const address = search.value;
   fetch(
@@ -125,10 +123,17 @@ function getWeatherData2(data) {
     });
 }
 
+function setDisplayStyle() {
+  currentWeatherItemsEl.style.display = "block";
+  timezone.style.display = "block";
+  countryEl.style.display = "block";
+  currentTempEl.style.display = "flex";
+  weatherForecastEl.style.display = "flex";
+}
 function showWeatherData(data) {
   let { weather, humidity, pressure, temp, wind_speed } = data.current;
 
-  var new_wind_speed = Math.round((3.6 * wind_speed) * 100) / 100;
+  var new_wind_speed = Math.round(3.6 * wind_speed * 100) / 100;
   timezone.innerHTML = data.timezone;
   countryEl.innerHTML = data.lat + "N " + data.lon + "E";
 
@@ -192,8 +197,7 @@ function showWeatherData(data) {
     if (idx == 0) {
       currentTempEl.innerHTML = `
           <div class="today">
-            <img src="http://openweathermap.org/img/wn//${day.weather[0].icon
-        }@4x.png" alt="weather icon" class="w-icon" style="width:150px; padding:-10px; margin:0px;">
+            <img src="http://openweathermap.org/img/wn//${day.weather[0].icon}@4x.png" alt="weather icon" class="w-icon" style="width:150px; padding:-10px; margin:0px;">
             <div class="other">
                 <div class="day">Today</div>
                 <div class="temp"><i class="bi bi-cloud-moon"></i>&nbsp;Night - ${day.temp.night}&#176;C</div>
@@ -205,12 +209,17 @@ function showWeatherData(data) {
       otherDayForcast += `
             <div class="weather-forecast-item">
                 <div class="day">${window
-          .moment(day.dt * 1000)
-          .format("ddd")}</div>
-                <img src="http://openweathermap.org/img/wn/${day.weather[0].icon
-        }@2x.png" alt="weather icon" class="w-icon">
-                <div class="temp"><i class="bi bi-cloud-moon"></i>&nbsp;Night - ${day.temp.night}&#176;C</div>
-                <div class="temp"><i class="bi bi-cloud-sun"></i>&nbsp;Day - ${day.temp.day}&#176;C</div>
+                  .moment(day.dt * 1000)
+                  .format("ddd")}</div>
+                <img src="http://openweathermap.org/img/wn/${
+                  day.weather[0].icon
+                }@2x.png" alt="weather icon" class="w-icon">
+                <div class="temp"><i class="bi bi-cloud-moon"></i>&nbsp;Night - ${
+                  day.temp.night
+                }&#176;C</div>
+                <div class="temp"><i class="bi bi-cloud-sun"></i>&nbsp;Day - ${
+                  day.temp.day
+                }&#176;C</div>
             </div>
             `;
     }
