@@ -6,6 +6,9 @@ const countryEl = document.querySelector(".country");
 const weatherForecastEl = document.querySelector(".weather-forecast");
 const currentTempEl = document.querySelector("#current-temp");
 
+const weatherForm = document.querySelector("form");
+const search = document.querySelector("input");
+
 const searchInput = document.querySelector("#search-input");
 const searchButton = document.querySelector("#search-button");
 
@@ -16,7 +19,7 @@ const days = [
   "Wednesday",
   "Thursday",
   "Friday",
-  "Sarturday",
+  "Saturday",
 ];
 const months = [
   "Jan",
@@ -34,6 +37,26 @@ const months = [
 ];
 
 const API_KEY = "aaa74cb61c515b9509baf2c7bef24143";
+
+// Button to show form
+const bbtnn2 = document.getElementById('bbtnn2');
+weatherForm.style.display = "none";
+
+bbtnn2.addEventListener('click', () => {
+  weatherForm.style.display = "block";
+  timezone.style.display = "none";
+  countryEl.style.display = "none";
+  currentWeatherItemsEl.style.display = 'none';
+  currentTempEl.style.display = "none";
+  weatherForecastEl.style.display = "none";
+});
+
+// Button for current location
+const bbtnn1 = document.getElementById('bbtnn1');
+bbtnn1.addEventListener('click', () => {
+  form.style.display = 'none';
+  getWeatherData1();
+});
 
 setInterval(() => {
   const time = new Date();
@@ -54,8 +77,7 @@ setInterval(() => {
   dateEl.innerHTML = days[day] + ", " + date + " " + months[month];
 }, 1000);
 
-getWeatherData();
-function getWeatherData() {
+function getWeatherData1() {
   navigator.geolocation.getCurrentPosition((success) => {
     let { latitude, longitude } = success.coords;
 
@@ -70,9 +92,43 @@ function getWeatherData() {
   });
 }
 
+weatherForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  currentWeatherItemsEl.style.display = "block";
+  timezone.style.display = "block";
+  countryEl.style.display = "block";
+  currentTempEl.style.display = "flex";
+  weatherForecastEl.style.display = "flex";
+
+  const address = search.value;
+  fetch(
+    `https://api.openweathermap.org/data/2.5/weather?q=${address}&appid=${API_KEY}`
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      getWeatherData2(data);
+    });
+});
+
+function getWeatherData2(data) {
+  console.log(data);
+  let { lon, lat } = data.coord;
+
+  fetch(
+    `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=hourly,minutely&units=metric&appid=${API_KEY}`
+  )
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data);
+      showWeatherData(data);
+    });
+}
+
 function showWeatherData(data) {
   let { weather, humidity, pressure, temp, wind_speed } = data.current;
 
+  var new_wind_speed = Math.round((3.6 * wind_speed) * 100) / 100;
   timezone.innerHTML = data.timezone;
   countryEl.innerHTML = data.lat + "N " + data.lon + "E";
 
@@ -81,7 +137,7 @@ function showWeatherData(data) {
   <div class="container">
     <div class="row  weather-items">
       <div class="col-6 weather-name">
-        Weather
+      <i class="bi bi-cloud-sun"></i>&nbsp;&nbsp;Weather
       </div>
       <div class="col-6 weather-num">
         ${weather[0].description.toUpperCase()}
@@ -91,45 +147,44 @@ function showWeatherData(data) {
   <div class="container">
     <div class="row  weather-items">
       <div class="col-6 weather-name">
-        Temperature
+      <i class="bi bi-thermometer-half"></i>&nbsp;&nbsp;Temperature
       </div>
       <div class="col-6 weather-num">
-        ${temp}&#176;C
+        ${temp} &#176;C
       </div>
     </div>
   </div>
   <div class="container">
     <div class="row  weather-items">
       <div class="col-6 weather-name">
-        Humidity
+      <i class="bi bi-moisture"></i>&nbsp;&nbsp;Humidity
       </div>
       <div class="col-6 weather-num">
-        ${humidity}%
+        ${humidity} %
       </div>
     </div>
   </div>
   <div class="container">
     <div class="row weather-items">
       <div class="col-6 weather-name">
-        Pressure
+      <i class="bi bi-speedometer2"></i>&nbsp;&nbsp;Pressure
       </div>
       <div class="col-6 weather-num">
-        ${pressure}
+        ${pressure} mb
       </div>
     </div>
   </div>
   <div class="container">
     <div class="row weather-items">
       <div class="col-7 weather-name">
-        Wind-speed <i class="fa-solid fa-wind"></i>
+      <i class="bi bi-wind"></i>&nbsp;&nbsp;Wind-Speed
       </div>
       <div class="col-5 weather-num">
-        ${wind_speed}
+        ${new_wind_speed} km/h
       </div>
     </div>
   </div>
   </div>
-
     `;
 
   let otherDayForcast = "";
@@ -137,28 +192,26 @@ function showWeatherData(data) {
     if (idx == 0) {
       currentTempEl.innerHTML = `
           <div class="today">
-            <img src="http://openweathermap.org/img/wn//${day.weather[0].icon}@4x.png" alt="weather icon" class="w-icon">
+            <img src="http://openweathermap.org/img/wn//${day.weather[0].icon
+        }@4x.png" alt="weather icon" class="w-icon" style="width:150px; padding:-10px; margin:0px;">
             <div class="other">
                 <div class="day">Today</div>
-                <div class="temp">Night - ${day.temp.night}&#176;C</div>
-                <div class="temp">Day - ${day.temp.day}&#176;C</div>
+                <div class="temp"><i class="bi bi-cloud-moon"></i>&nbsp;Night - ${day.temp.night}&#176;C</div>
+                <div class="temp"><i class="bi bi-cloud-sun"></i>&nbsp;Day - ${day.temp.day}&#176;C</div>
             </div>
           </div>
-
             `;
     } else {
       otherDayForcast += `
             <div class="weather-forecast-item">
                 <div class="day">${window
-                  .moment(day.dt * 1000)
-                  .format("ddd")}</div>
-                <img src="http://openweathermap.org/img/wn/${
-                  day.weather[0].icon
-                }@2x.png" alt="weather icon" class="w-icon">
-                <div class="temp">Night - ${day.temp.night}&#176;C</div>
-                <div class="temp">Day - ${day.temp.day}&#176;C</div>
+          .moment(day.dt * 1000)
+          .format("ddd")}</div>
+                <img src="http://openweathermap.org/img/wn/${day.weather[0].icon
+        }@2x.png" alt="weather icon" class="w-icon">
+                <div class="temp"><i class="bi bi-cloud-moon"></i>&nbsp;Night - ${day.temp.night}&#176;C</div>
+                <div class="temp"><i class="bi bi-cloud-sun"></i>&nbsp;Day - ${day.temp.day}&#176;C</div>
             </div>
-
             `;
     }
   });
