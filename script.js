@@ -44,12 +44,7 @@ weatherForm.style.display = "none";
 
 bbtnn2.addEventListener("click", () => {
   weatherForm.style.display = "block";
-  timezone.style.display = "none";
-  countryEl.style.display = "none";
-  currentWeatherItemsEl.style.display = "none";
-  currentTempEl.style.display = "none";
-  weatherForecastEl.style.display = "none";
-  search.value = ''
+  setDisplayStyleNone()
 });
 
 // Button for current location
@@ -105,6 +100,10 @@ weatherForm.addEventListener("submit", (event) => {
   )
     .then((res) => res.json())
     .then((data) => {
+      if (data.cod == "404") {
+        alert("Please enter a valid city name.")
+        setDisplayStyleNone()
+      }
       getWeatherData2(data);
     });
 });
@@ -121,6 +120,15 @@ function getWeatherData2(data) {
       console.log(data);
       showWeatherData(data);
     });
+}
+
+function setDisplayStyleNone(){
+  timezone.style.display = "none";
+  countryEl.style.display = "none";
+  currentWeatherItemsEl.style.display = "none";
+  currentTempEl.style.display = "none";
+  weatherForecastEl.style.display = "none";
+  search.value = "";
 }
 
 function setDisplayStyle() {
