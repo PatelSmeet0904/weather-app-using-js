@@ -91,19 +91,18 @@ function getWeatherData1() {
 
 weatherForm.addEventListener("submit", (event) => {
   event.preventDefault();
-
-  setDisplayStyle()
-
+  
   const address = search.value;
   fetch(
     `https://api.openweathermap.org/data/2.5/weather?q=${address}&appid=${API_KEY}`
-  )
+    )
     .then((res) => res.json())
     .then((data) => {
       if (data.cod == "404") {
         alert("Please enter a valid city name.")
         setDisplayStyleNone()
       }
+      setDisplayStyle()
       getWeatherData2(data);
     });
 });
